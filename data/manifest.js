@@ -1,1 +1,1 @@
-window.RECIPE_FILES=['d01','d02'];
+window.RECIPE_FILES=['d01','d02','d03'];
