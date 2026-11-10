@@ -1,360 +1,332 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang='zh-CN'>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="format-detection" content="telephone=no">
-<meta name="theme-color" content="#fafaf9">
-<title>今日点菜</title>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'>
+<meta name='theme-color' content='#f7f5f2'>
+<title>今天想吃什么</title>
 <style>
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#fafaf9;color:#1c1917;line-height:1.5}
-  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
-  header{padding:26px 0 14px}
-  h1{margin:0;font-size:22px;letter-spacing:-.3px}
-  .sub{margin:6px 0 0;font-size:13px;color:#78716c}
-  .grid{display:grid;gap:12px;grid-template-columns:1fr}
-  @media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
-  .card{background:#fff;border:2px solid transparent;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:.18s;position:relative}
-  .card:active{transform:scale(.985)}
-  .card.on{border-color:#f97316;box-shadow:0 8px 24px rgba(249,115,22,.16)}
-  .banner{height:84px;display:flex;align-items:center;justify-content:center;font-size:38px;background:linear-gradient(135deg,#fef3c7,#fed7aa)}
-  .card:nth-child(2n) .banner{background:linear-gradient(135deg,#dbeafe,#bfdbfe)}
-  .card:nth-child(3n) .banner{background:linear-gradient(135deg,#dcfce7,#bbf7d0)}
-  .card:nth-child(4n) .banner{background:linear-gradient(135deg,#fee2e2,#fecaca)}
-  .tick{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;background:#f97316;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
-  .body{padding:12px 14px 14px}
-  .row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-  .name{font-size:15px;font-weight:600}
-  .time{font-size:11px;color:#a8a29e;white-space:nowrap}
-  .ings{margin:6px 0 0;font-size:11.5px;color:#78716c;line-height:1.6}
-  .diff{margin:8px 0 0;font-size:11px;color:#f97316}
-  footer{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid #e7e5e4;backdrop-filter:blur(8px);padding:10px 0 calc(10px + env(safe-area-inset-bottom))}
-  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-  .chip{display:inline-flex;align-items:center;gap:5px;background:#fff7ed;color:#c2410c;font-size:11.5px;padding:4px 8px;border-radius:99px}
-  .chip b{font-weight:400;cursor:pointer;color:#fb923c;font-size:13px;line-height:1}
-  input.note{width:100%;font-size:13px;padding:9px 12px;border:1px solid #e7e5e4;border-radius:10px;margin-bottom:8px;outline:none;font-family:inherit;background:#fff;color:inherit}
-  input.note:focus{border-color:#fb923c}
-  .btns{display:flex;gap:8px}
-  button{font-family:inherit;border:0;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;padding:12px}
-  .go{flex:1;background:#f97316;color:#fff;transition:.15s}
-  .go:active{background:#ea580c}
-  .go:disabled{background:#d6d3d1;cursor:not-allowed}
-  .ghost{background:#f5f5f4;color:#57534e;flex:0 0 auto;padding:12px 14px}
-  .ghost:disabled{color:#a8a29e;cursor:not-allowed}
-  .msg{font-size:12px;color:#16a34a;text-align:center;margin:6px 0 0;line-height:1.4}
-  .msg.err{color:#dc2626}
-  .hint{background:#fff;border:1px solid #e7e5e4;border-radius:16px;padding:20px;margin:36px 0}
-  .hint h2{margin:0 0 10px;font-size:16px}
-  .hint p{margin:0;font-size:13px;color:#57534e;line-height:1.8}
-  code{background:#f5f5f4;padding:1px 5px;border-radius:4px;font-size:12px}
-  .pad{padding-bottom:180px}
-  [hidden]{display:none !important}
+:root{--bg:#f7f5f2;--card:#fff;--ink:#1f1d1a;--sub:#8a827a;--line:#e8e3dc;--acc:#e0603a;--acc2:#f3d9cf}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;padding-bottom:130px}
+header{position:sticky;top:0;z-index:20;background:rgba(247,245,242,.95);backdrop-filter:blur(10px);padding:12px 14px 6px;border-bottom:1px solid var(--line)}
+h1{margin:0 0 9px;font-size:19px;letter-spacing:.5px;display:flex;align-items:baseline;gap:8px}
+h1 small{font-weight:400;font-size:12px;color:var(--sub)}
+.search{position:relative}
+.search input{width:100%;padding:11px 40px 11px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:15px;outline:none;-webkit-appearance:none}
+.search input:focus{border-color:var(--acc)}
+.clr{position:absolute;right:9px;top:50%;transform:translateY(-50%);border:0;background:#eee9e3;color:#6b6259;width:24px;height:24px;border-radius:50%;line-height:1;font-size:15px;cursor:pointer;display:none;padding:0}
+.cats{display:flex;gap:7px;overflow-x:auto;padding:9px 0 3px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cats button{flex:0 0 auto;padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--sub);font-size:13px;cursor:pointer;white-space:nowrap}
+.cats button.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.count{font-size:12px;color:var(--sub);padding:8px 14px 8px}
+.grid{display:grid;grid-template-columns:1fr;gap:12px;padding:0 14px}
+@media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.card{position:relative;background:var(--card);border-radius:16px;overflow:hidden;border:1px solid var(--line);cursor:pointer;transition:transform .12s,border-color .15s}
+.card:active{transform:scale(.985)}
+.card.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc2)}
+.bn{position:relative;height:100px;display:flex;align-items:center;justify-content:center;font-size:40px;background:linear-gradient(135deg,#fdeee7,#f6e6dc)}
+.bn img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bn .emo{position:relative}
+.bn.hasimg .emo{display:none}
+.bd{padding:10px 12px 12px}
+.nm{font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px}
+.meta{font-size:12px;color:var(--sub);margin:4px 0 6px;display:flex;gap:9px;flex-wrap:wrap}
+.igs{font-size:12px;color:#6b6259;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.info{position:absolute;right:8px;top:8px;z-index:2;width:26px;height:26px;border-radius:50%;border:0;background:rgba(255,255,255,.94);color:#5a5249;font-size:13px;cursor:pointer;line-height:1;padding:0}
+.ck{position:absolute;left:8px;top:8px;z-index:2;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.94);display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent}
+.card.sel .ck{background:var(--acc);color:#fff}
+.more{display:block;width:calc(100% - 28px);margin:14px auto 0;padding:12px;border-radius:12px;border:1px dashed #d9d1c7;background:transparent;color:var(--sub);font-size:14px;cursor:pointer}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));transform:translateY(120%);transition:transform .22s;box-shadow:0 -6px 24px rgba(0,0,0,.07)}
+.bar.up{transform:none}
+.chips{display:flex;gap:6px;flex-wrap:wrap;max-height:70px;overflow:auto;margin-bottom:8px}
+.chip{background:#f1ece6;border-radius:999px;padding:3px 10px;font-size:12px;color:#6b6259;display:flex;align-items:center;gap:5px;cursor:pointer;border:0}
+.chip b{font-weight:600;color:var(--acc)}
+.row{display:flex;gap:8px;align-items:center}
+.row input{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;outline:none;background:#fff}
+.btn{padding:10px 16px;border-radius:10px;border:0;font-size:14px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.btn.p{background:var(--acc);color:#fff;font-weight:600}
+.btn.s{background:#f1ece6;color:#6b6259}
+.btn:disabled{opacity:.55}
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(28,24,20,.45);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .18s}
+.sheet.on{opacity:1;pointer-events:auto}
+.panel{background:#fff;width:100%;max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(22px + env(safe-area-inset-bottom));transform:translateY(24px);transition:transform .2s;max-width:760px;margin:0 auto}
+.sheet.on .panel{transform:none}
+.panel h2{margin:4px 0 8px;font-size:20px}
+.panel h3{margin:18px 0 8px;font-size:13px;color:var(--acc);letter-spacing:1px;font-weight:700}
+.panel ul{margin:0;padding-left:18px}
+.panel li{margin-bottom:5px;font-size:14px;line-height:1.65}
+.panel ol{padding-left:20px;margin:0}
+.panel ol li{margin-bottom:10px}
+.tip{margin-top:14px;padding:11px 13px;background:#fff8ef;border:1px solid #f5e4cc;border-radius:10px;font-size:13px;color:#8a6a3c;line-height:1.65}
+.toast{position:fixed;left:50%;bottom:160px;transform:translate(-50%,10px);background:rgba(35,30,26,.93);color:#fff;padding:9px 16px;border-radius:999px;font-size:13px;z-index:80;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;max-width:82vw;text-align:center;line-height:1.4}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.empty{padding:56px 24px;text-align:center;color:var(--sub);font-size:14px;line-height:1.9}
 </style>
 </head>
 <body>
-<header class="wrap">
-  <h1>🍳 今日想吃点什么</h1>
-  <p class="sub">点好菜，我手机微信会立刻收到「采购清单 + 做法」</p>
+<header>
+  <h1>今天想吃什么 <small id='hint'>点菜 → 推送</small></h1>
+  <div class='search'>
+    <input id='q' type='search' placeholder='搜菜名或食材，如「土豆」「牛肉」' autocomplete='off'>
+    <button class='clr' id='clr' type='button'>&times;</button>
+  </div>
+  <div class='cats' id='cats'></div>
 </header>
-
-<div class="wrap" id="hint" hidden>
-  <div class="hint">
-    <h2>还差一步：绑定推送链接</h2>
-    <p>
-      把带密钥的完整链接（末尾带 <code>#SCT...</code>）在这台设备上打开一次，
-      页面会自动记住，以后直接访问不用再带密钥。
-    </p>
+<div class='count' id='count'></div>
+<div class='grid' id='grid'></div>
+<div class='empty' id='empty' style='display:none'></div>
+<div id='more'></div>
+<div class='bar' id='bar'>
+  <div class='chips' id='chips'></div>
+  <div class='row'>
+    <input id='note' placeholder='想说的话（可选）' maxlength='60'>
+    <button class='btn s' id='copy' type='button'>复制</button>
+    <button class='btn p' id='send' type='button'>发送</button>
   </div>
 </div>
-
-<main class="wrap pad" id="main" hidden>
-  <div class="grid" id="grid"></div>
-</main>
-
-<footer id="bar" hidden>
-  <div class="wrap">
-    <div class="chips" id="chips" hidden></div>
-    <input class="note" id="note" maxlength="60" placeholder="想说的话（可选，一起发过去）">
-    <div class="btns">
-      <button class="go" id="send" disabled>先选几道菜</button>
-      <button class="ghost" id="copy" disabled>复制</button>
-    </div>
-    <p class="msg" id="msg" hidden></p>
-  </div>
-</footer>
-
-<noscript>
-  <div class="wrap"><div class="hint"><p>这个页面需要启用 JavaScript 才能选菜。</p></div></div>
-</noscript>
-
+<div class='sheet' id='sheet'><div class='panel' id='panel'></div></div>
+<div class='toast' id='toast'></div>
+<script src='data/d01.js'></script>
 <script>
-(function () {
-  'use strict';
+var ALL = window.RECIPES || [];
+var sel = {};
+var ST = { q: '', cat: '全部', limit: 36 };
+var KS = 'recipe_sckey';
 
-  var RECIPES = [
-    { id: 1, name: '红烧肉', emoji: '🥩', time: '60 分钟', difficulty: '中等',
-      ingredients: ['五花肉 500g', '冰糖 20g', '生抽 2 勺', '老抽 1 勺', '料酒 2 勺', '姜 3 片', '八角 2 颗'],
-      steps: ['五花肉切麻将块，冷水下锅焯 3 分钟捞出', '锅里少油放冰糖，小火炒出枣红色', '下肉块翻炒裹色，加料酒、生抽、老抽、姜片、八角', '倒热水没过肉，小火炖 50 分钟，大火收汁'] },
-    { id: 2, name: '宫保鸡丁', emoji: '🍗', time: '25 分钟', difficulty: '简单',
-      ingredients: ['鸡胸肉 300g', '花生米 50g', '干辣椒 5 个', '花椒 1 小把', '生抽 2 勺', '香醋 1 勺', '白糖 1 勺', '葱姜蒜 适量'],
-      steps: ['鸡胸切丁，加生抽和淀粉抓匀腌 10 分钟', '调碗汁：生抽、香醋、白糖、水淀粉', '热油下干辣椒和花椒小火炒香，再下鸡丁炒散', '倒碗汁收稠，最后放花生米和葱段'] },
-    { id: 3, name: '西红柿炒鸡蛋', emoji: '🍅', time: '15 分钟', difficulty: '简单',
-      ingredients: ['西红柿 3 个', '鸡蛋 3 个', '葱花 适量', '盐 1 小勺', '白糖 半勺', '食用油 2 勺'],
-      steps: ['鸡蛋加少许盐打散，热油下锅炒成块盛出', '西红柿去皮切块，下锅炒出汁水', '倒回鸡蛋，加盐和糖翻炒匀', '撒葱花出锅'] },
-    { id: 4, name: '麻婆豆腐', emoji: '🌶️', time: '30 分钟', difficulty: '中等',
-      ingredients: ['嫩豆腐 400g', '牛肉末 100g', '郫县豆瓣酱 2 勺', '花椒粉 适量', '蒜苗 1 根', '葱姜蒜 适量', '生抽 1 勺'],
-      steps: ['豆腐切块，淡盐水里泡 5 分钟去豆味', '炒肉末至酥，下豆瓣酱和葱姜蒜炒出红油', '加水烧开，轻轻推入豆腐，小火煮 5 分钟', '水淀粉勾两次芡，出锅撒花椒粉和蒜苗'] },
-    { id: 5, name: '清蒸鲈鱼', emoji: '🐟', time: '20 分钟', difficulty: '容易',
-      ingredients: ['鲈鱼 1 条', '姜 5 片', '葱 2 根', '蒸鱼豉油 3 勺', '料酒 1 勺', '食用油 2 勺', '盐 适量'],
-      steps: ['鱼处理干净，两面各划两刀，抹盐和料酒腌 10 分钟', '盘底垫葱姜，鱼放上去，身上再铺葱姜', '水开后大火蒸 8 分钟，关火焖 2 分钟', '倒掉盘中汤水，淋蒸鱼豉油，浇一勺热油'] },
-    { id: 6, name: '可乐鸡翅', emoji: '🍖', time: '30 分钟', difficulty: '简单',
-      ingredients: ['鸡中翅 500g', '可乐 1 罐', '生抽 2 勺', '老抽 半勺', '姜 3 片', '料酒 1 勺'],
-      steps: ['鸡翅两面划刀，冷水下锅焯水后擦干', '少油煎到两面金黄', '加料酒、生抽、老抽、姜片，倒可乐没过鸡翅', '中火煮 15 分钟，大火收汁到浓稠'] },
-    { id: 7, name: '蒜蓉炒时蔬', emoji: '🥬', time: '10 分钟', difficulty: '简单',
-      ingredients: ['青菜 400g', '大蒜 4 瓣', '盐 适量', '食用油 1 勺', '蚝油 半勺'],
-      steps: ['青菜洗净沥干，蒜切末', '热锅多点油，下蒜末小火爆香', '下青菜大火快炒 1 分钟', '加盐和蚝油，翻匀立刻出锅'] },
-    { id: 8, name: '紫菜蛋花汤', emoji: '🍲', time: '10 分钟', difficulty: '简单',
-      ingredients: ['紫菜 1 小把', '鸡蛋 2 个', '虾皮 1 小把', '香油 几滴', '盐 适量', '葱花 适量'],
-      steps: ['水烧开，下紫菜和虾皮煮 1 分钟', '鸡蛋打散，沿锅边缓缓倒入并轻搅', '加盐调味，关火淋香油撒葱花'] }
-  ];
+function $(i){ return document.getElementById(i); }
+function baseName(s){ return String(s||'').split(/[\s0-9（(、·]/)[0]; }
+function getKey(){ try{ return localStorage.getItem(KS)||''; }catch(e){ return ''; } }
 
-  var STORE_KEY = 'recipe_sckey';
-  var KEY_RE = /^SCT[A-Za-z0-9]+$/;
-
-  var gridEl = document.getElementById('grid');
-  var mainEl = document.getElementById('main');
-  var hintEl = document.getElementById('hint');
-  var barEl = document.getElementById('bar');
-  var chipsEl = document.getElementById('chips');
-  var noteEl = document.getElementById('note');
-  var sendEl = document.getElementById('send');
-  var copyEl = document.getElementById('copy');
-  var msgEl = document.getElementById('msg');
-
-  var sckey = '';
-  var picked = [];
-  var sending = false;
-
-  function esc(s) {
-    return String(s).replace(/[&<>"]/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
-    });
-  }
-
-  function byId(id) {
-    for (var i = 0; i < RECIPES.length; i++) {
-      if (RECIPES[i].id === id) return RECIPES[i];
-    }
-    return null;
-  }
-
-  function readKeyFromHash() {
-    var raw = (location.hash || '').replace(/^#/, '');
-    if (!KEY_RE.test(raw)) return '';
-    try { localStorage.setItem(STORE_KEY, raw); } catch (e) {}
-    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
-    return raw;
-  }
-
-  function storedKey() {
-    try { return localStorage.getItem(STORE_KEY) || ''; } catch (e) { return ''; }
-  }
-
-  function setMsg(text, isErr) {
-    if (!text) { msgEl.hidden = true; msgEl.textContent = ''; return; }
-    msgEl.hidden = false;
-    msgEl.textContent = text;
-    msgEl.className = isErr ? 'msg err' : 'msg';
-  }
-
-  function baseName(s) {
-    var t = String(s).trim();
-    var sp = t.search(/[\s\d]/);
-    return (sp > 0 ? t.slice(0, sp) : t).trim();
-  }
-
-  function shoppingList() {
-    var seen = {};
-    var out = [];
-    picked.forEach(function (id) {
-      var r = byId(id);
-      if (!r) return;
-      r.ingredients.forEach(function (g) {
-        var k = baseName(g);
-        if (!k || seen[k]) return;
-        seen[k] = true;
-        out.push(k);
-      });
-    });
-    return out;
-  }
-
-  function buildText() {
-    var lines = [];
-    lines.push('有人点菜啦 🥢');
-    lines.push('');
-    lines.push('已点：' + picked.map(function (id) {
-      var r = byId(id);
-      return r ? r.name : '';
-    }).join('、'));
-    lines.push('');
-    lines.push('=== 采购清单 ===');
-    shoppingList().forEach(function (g) { lines.push('· ' + g); });
-    lines.push('');
-    picked.forEach(function (id) {
-      var r = byId(id);
-      if (!r) return;
-      lines.push('=== ' + r.name + '（' + r.time + '）===');
-      lines.push('食材：' + r.ingredients.join('、'));
-      lines.push('做法：');
-      r.steps.forEach(function (s, i) { lines.push('  ' + (i + 1) + '. ' + s); });
-      lines.push('');
-    });
-    var n = noteEl.value.trim();
-    if (n) lines.push('留言：' + n);
-    return lines.join('\n');
-  }
-
-  function renderGrid() {
-    var html = '';
-    RECIPES.forEach(function (r) {
-      var on = picked.indexOf(r.id) >= 0;
-      html += '<div class="card' + (on ? ' on' : '') + '" data-id="' + r.id + '">' +
-        '<div class="banner">' + r.emoji + '</div>' +
-        (on ? '<div class="tick">✓</div>' : '') +
-        '<div class="body">' +
-          '<div class="row"><span class="name">' + esc(r.name) + '</span>' +
-          '<span class="time">' + esc(r.time) + '</span></div>' +
-          '<p class="ings">' + esc(r.ingredients.join(' · ')) + '</p>' +
-          '<p class="diff">难度 ' + esc(r.difficulty) + '</p>' +
-        '</div>' +
-      '</div>';
-    });
-    gridEl.innerHTML = html;
-  }
-
-  function renderBar() {
-    if (!picked.length) {
-      chipsEl.hidden = true;
-      chipsEl.innerHTML = '';
-      sendEl.disabled = true;
-      copyEl.disabled = true;
-      sendEl.textContent = '先选几道菜';
-      return;
-    }
-    var chips = '';
-    picked.forEach(function (id) {
-      var r = byId(id);
-      if (r) chips += '<span class="chip">' + esc(r.name) + '<b data-drop="' + id + '">✕</b></span>';
-    });
-    chipsEl.innerHTML = chips;
-    chipsEl.hidden = false;
-    sendEl.disabled = sending;
-    copyEl.disabled = false;
-    sendEl.textContent = sending ? '发送中…' : '发送（' + picked.length + ' 道）';
-  }
-
-  function toggle(id) {
-    var i = picked.indexOf(id);
-    if (i >= 0) picked.splice(i, 1); else picked.push(id);
-    setMsg('');
-    renderGrid();
-    renderBar();
-  }
-
-  function submit() {
-    if (!picked.length || sending) return;
-    sending = true;
-    setMsg('');
-    renderBar();
-
-    var title = '今日点菜 · ' + picked.length + ' 道';
-    var body = new URLSearchParams();
-    body.set('title', title);
-    body.set('desp', buildText());
-
-    function done() {
-      setMsg('已发送请求，去微信看一眼～没收到就点旁边「复制」发给我', false);
-      picked = [];
-      noteEl.value = '';
-      sending = false;
-      renderGrid();
-      renderBar();
-    }
-
-    try {
-      fetch('https://sctapi.ftqq.com/' + sckey + '.send', {
-        method: 'POST',
-        mode: 'no-cors',
-        body: body
-      }).then(done).catch(function () {
-        sending = false;
-        renderBar();
-        setMsg('网络不通，点「复制」直接把清单发给我', true);
-      });
-    } catch (e) {
-      sending = false;
-      renderBar();
-      setMsg('这个浏览器发不了请求，点「复制」发给我', true);
-    }
-  }
-
-  function copy() {
-    if (!picked.length) return;
-    var text = buildText();
-
-    function ok() { setMsg('清单已复制，粘到微信发给我就行', false); }
-    function alt() {
-      var ta = document.createElement('textarea');
-      ta.value = text;
-      ta.setAttribute('readonly', '');
-      ta.style.position = 'fixed';
-      ta.style.top = '-1000px';
-      document.body.appendChild(ta);
-      ta.select();
-      ta.setSelectionRange(0, text.length);
-      var good = false;
-      try { good = document.execCommand('copy'); } catch (e) {}
-      document.body.removeChild(ta);
-      if (good) ok(); else setMsg('复制失败，换个浏览器或长按选择文字', true);
-    }
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(ok).catch(alt);
-    } else {
-      alt();
-    }
-  }
-
-  gridEl.addEventListener('click', function (e) {
-    var card = e.target.closest ? e.target.closest('.card') : null;
-    if (!card) return;
-    toggle(parseInt(card.getAttribute('data-id'), 10));
-  });
-
-  chipsEl.addEventListener('click', function (e) {
-    var b = e.target.closest ? e.target.closest('[data-drop]') : null;
-    if (!b) return;
-    e.stopPropagation();
-    toggle(parseInt(b.getAttribute('data-drop'), 10));
-  });
-
-  sendEl.addEventListener('click', submit);
-  copyEl.addEventListener('click', copy);
-  noteEl.addEventListener('input', function () { setMsg(''); });
-
-  sckey = readKeyFromHash() || storedKey();
-
-  if (!sckey) {
-    hintEl.hidden = false;
-  } else {
-    mainEl.hidden = false;
-    barEl.hidden = false;
-    renderGrid();
-    renderBar();
+(function bindKey(){
+  var h = location.hash || '';
+  if(h.indexOf('#SCT') === 0){
+    var k = h.slice(1);
+    try{ localStorage.setItem(KS, k); }catch(e){}
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
   }
 })();
+
+var CATS = ['全部'];
+ALL.forEach(function(r){ if(r.cat && CATS.indexOf(r.cat) < 0) CATS.push(r.cat); });
+
+function kws(){
+  return ST.q.trim().toLowerCase().split(/\s+/).filter(function(w){ return w; });
+}
+function hit(r){
+  var k = kws();
+  if(!k.length) return true;
+  var hay = ((r.name||'') + ' ' + (r.cat||'') + ' ' + (r.ing||[]).join(' ')).toLowerCase();
+  return k.every(function(w){ return hay.indexOf(w) >= 0; });
+}
+function list(){
+  return ALL.filter(hit).filter(function(r){ return ST.cat === '全部' || r.cat === ST.cat; });
+}
+function selCount(){ return Object.keys(sel).length; }
+function selList(){ return ALL.filter(function(r){ return sel[r.id]; }); }
+function selNames(){ return selList().map(function(r){ return r.name; }); }
+
+function toast(m){
+  var t = $('toast');
+  t.textContent = m;
+  t.classList.add('on');
+  clearTimeout(t._h);
+  t._h = setTimeout(function(){ t.classList.remove('on'); }, 2400);
+}
+
+function renderCats(){
+  $('cats').innerHTML = CATS.map(function(c){
+    return '<button type=\'button\' data-cat=\'' + c + '\'' + (c === ST.cat ? ' class=\'on\'' : '') + '>' + c + '</button>';
+  }).join('');
+}
+
+function cardHTML(r){
+  var c = sel[r.id] ? ' sel' : '';
+  var img = r.img ? '<img src=\'' + r.img + '\' alt=\'\' loading=\'lazy\'>' : '';
+  var ings = (r.ing||[]).map(baseName).filter(function(x){ return x; }).slice(0, 6).join(' · ');
+  return '<div class=\'card' + c + '\' data-id=\'' + r.id + '\'>'
+    + '<div class=\'bn' + (r.img ? ' hasimg' : '') + '\'>' + img + '<span class=\'emo\'>' + (r.emoji||'🍽') + '</span></div>'
+    + '<button class=\'info\' type=\'button\' data-info=\'' + r.id + '\'>i</button>'
+    + '<div class=\'ck\'>&#10003;</div>'
+    + '<div class=\'bd\'>'
+    +   '<div class=\'nm\'>' + r.name + '</div>'
+    +   '<div class=\'meta\'><span>⏱ ' + (r.time||'-') + ' 分钟</span><span>' + (r.diff||'') + '</span><span>' + (r.cat||'') + '</span></div>'
+    +   '<div class=\'igs\'>' + ings + '</div>'
+    + '</div></div>';
+}
+
+function render(){
+  var L = list();
+  var shown = L.slice(0, ST.limit);
+  $('count').textContent = L.length
+    ? ('找到 ' + L.length + ' 道' + (ST.q.trim() ? ' · 「' + ST.q.trim() + '」' : ''))
+    : '';
+  $('grid').innerHTML = shown.map(cardHTML).join('');
+  var em = $('empty');
+  if(!L.length){
+    em.style.display = 'block';
+    em.innerHTML = ALL.length
+      ? '没找到这道菜<br><span style=\'font-size:13px\'>换个食材试试：鸡蛋、土豆、豆腐、牛肉、白菜</span>'
+      : '菜单正在加载…';
+  } else { em.style.display = 'none'; }
+  var rest = L.length - shown.length;
+  $('more').innerHTML = rest > 0
+    ? '<button class=\'more\' type=\'button\' id=\'moreBtn\'>还有 ' + rest + ' 道，继续加载</button>'
+    : '';
+  if(rest > 0){ $('moreBtn').onclick = function(){ ST.limit += 36; render(); }; }
+  var imgs = $('grid').querySelectorAll('.bn img');
+  for(var i = 0; i < imgs.length; i++){
+    imgs[i].addEventListener('error', function(){ this.parentNode.classList.remove('hasimg'); this.remove(); });
+  }
+}
+
+function renderBar(){
+  var n = selCount();
+  $('bar').classList.toggle('up', n > 0);
+  $('chips').innerHTML = selList().map(function(r){
+    return '<button class=\'chip\' type=\'button\' data-rm=\'' + r.id + '\'><b>' + (r.emoji||'') + '</b>' + r.name + ' ×</button>';
+  }).join('') + (n > 1 ? '<button class=\'chip\' type=\'button\' id=\'clrSel\'>清空</button>' : '');
+  if(n > 1){ $('clrSel').onclick = function(){ sel = {}; renderBar(); render(); }; }
+}
+
+function toggle(id){
+  if(sel[id]) delete sel[id]; else sel[id] = 1;
+  renderBar();
+  var card = document.querySelector('.card[data-id=\'' + id + '\']');
+  if(card) card.classList.toggle('sel', !!sel[id]);
+}
+
+function openDish(id){
+  var r = ALL.filter(function(x){ return x.id === id; })[0];
+  if(!r) return;
+  var inSel = !!sel[id];
+  $('panel').innerHTML =
+      '<h2>' + (r.emoji||'🍽') + ' ' + r.name + '</h2>'
+    + '<div class=\'meta\'><span>⏱ ' + (r.time||'-') + ' 分钟</span><span>' + (r.diff||'') + '</span><span>' + (r.cat||'') + '</span></div>'
+    + '<h3>用料 · ' + (r.ing||[]).length + ' 样</h3>'
+    + '<ul>' + (r.ing||[]).map(function(s){ return '<li>' + s + '</li>'; }).join('') + '</ul>'
+    + '<h3>做法</h3>'
+    + '<ol>' + (r.steps||[]).map(function(s){ return '<li>' + s + '</li>'; }).join('') + '</ol>'
+    + (r.tip ? '<div class=\'tip\'>💡 ' + r.tip + '</div>' : '')
+    + '<div style=\'display:flex;gap:8px;margin-top:18px\'>'
+    +   '<button class=\'btn ' + (inSel ? 's' : 'p') + '\' type=\'button\' id=\'tog\' style=\'flex:1\'>' + (inSel ? '移出这一顿' : '加入这一顿') + '</button>'
+    +   '<button class=\'btn s\' type=\'button\' id=\'cls\'>关闭</button>'
+    + '</div>';
+  $('sheet').classList.add('on');
+  $('tog').onclick = function(){ toggle(id); $('sheet').classList.remove('on'); };
+  $('cls').onclick = function(){ $('sheet').classList.remove('on'); };
+}
+
+function buildText(){
+  var L = selList();
+  var shop = {};
+  L.forEach(function(r){
+    (r.ing||[]).forEach(function(s){
+      var n = baseName(s);
+      if(!n) return;
+      if(!shop[n]) shop[n] = [];
+      if(shop[n].indexOf(r.name) < 0) shop[n].push(r.name);
+    });
+  });
+  var keys = Object.keys(shop).sort();
+  var t = '【今晚点菜】' + L.map(function(r){ return r.name; }).join('、') + '\n';
+  t += '共 ' + L.length + ' 道\n\n';
+  t += '====== 采购清单（' + keys.length + ' 样）======\n';
+  t += keys.map(function(n){ return '· ' + n + '（' + shop[n].join('、') + '）'; }).join('\n') + '\n';
+  L.forEach(function(r, i){
+    t += '\n====== ' + (i+1) + '. ' + r.name + ' · ' + (r.time||'-') + '分钟 · ' + (r.diff||'') + ' ======\n';
+    t += '【用料】\n' + (r.ing||[]).map(function(s){ return '  - ' + s; }).join('\n') + '\n';
+    t += '【做法】\n' + (r.steps||[]).map(function(s, k){ return '  ' + (k+1) + ') ' + s; }).join('\n') + '\n';
+    if(r.tip) t += '【关键点】' + r.tip + '\n';
+  });
+  var note = $('note').value.trim();
+  if(note) t += '\n【留言】' + note;
+  return t;
+}
+
+function copyText(t){
+  function fb(){
+    var a = document.createElement('textarea');
+    a.value = t;
+    a.style.position = 'fixed';
+    a.style.opacity = '0';
+    document.body.appendChild(a);
+    a.select();
+    try{ document.execCommand('copy'); toast('已复制到剪贴板'); }
+    catch(e){ toast('复制失败，请长按选择'); }
+    a.remove();
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(function(){ toast('已复制到剪贴板'); }, fb);
+  } else fb();
+}
+
+function sendNow(){
+  var n = selCount();
+  if(!n){ toast('还没选菜呢'); return; }
+  var txt = buildText();
+  var k = getKey();
+  if(!k){
+    copyText(txt);
+    toast('还没绑定推送，已复制文字，粘给 TA 就行');
+    return;
+  }
+  var body = new URLSearchParams();
+  body.append('title', '🍳 点菜：' + selNames().join('、'));
+  body.append('desp', txt);
+  var btn = $('send');
+  btn.disabled = true;
+  btn.textContent = '发送中';
+  fetch('https://sctapi.ftqq.com/' + k + '.send', { method: 'POST', mode: 'no-cors', body: body })
+    .then(function(){ toast('已发出，检查下微信'); })
+    .catch(function(){ copyText(txt); toast('网络不通，已复制文字'); })
+    .then(function(){ btn.disabled = false; btn.textContent = '发送'; });
+}
+
+$('q').addEventListener('input', function(){
+  ST.q = this.value;
+  ST.limit = 36;
+  $('clr').style.display = this.value ? 'block' : 'none';
+  render();
+});
+$('clr').addEventListener('click', function(){
+  $('q').value = '';
+  ST.q = '';
+  ST.limit = 36;
+  this.style.display = 'none';
+  render();
+});
+$('cats').addEventListener('click', function(e){
+  var b = e.target.closest('[data-cat]');
+  if(!b) return;
+  ST.cat = b.getAttribute('data-cat');
+  ST.limit = 36;
+  renderCats();
+  render();
+});
+$('grid').addEventListener('click', function(e){
+  var info = e.target.closest('[data-info]');
+  if(info){ openDish(info.getAttribute('data-info')); return; }
+  var card = e.target.closest('.card');
+  if(card){ toggle(card.getAttribute('data-id')); }
+});
+$('chips').addEventListener('click', function(e){
+  var b = e.target.closest('[data-rm]');
+  if(b){ toggle(b.getAttribute('data-rm')); if(selCount() === 0) renderBar(); }
+});
+$('sheet').addEventListener('click', function(e){ if(e.target === $('sheet')) $('sheet').classList.remove('on'); });
+$('send').addEventListener('click', sendNow);
+$('copy').addEventListener('click', function(){
+  if(!selCount()){ toast('还没选菜呢'); return; }
+  copyText(buildText());
+});
+
+if(getKey()) $('hint').textContent = '已绑定推送';
+renderCats();
+render();
+renderBar();
 </script>
 </body>
 </html>
