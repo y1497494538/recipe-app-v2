@@ -1,0 +1,9 @@
+services:
+  recipe-app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - SCT_SERVERCHAN_KEY=${SCT_SERVERCHAN_KEY}
+      - PORT=3000
+    restart: unless-stopped

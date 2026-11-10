@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今日点菜</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { -webkit-tap-highlight-color: transparent; }
+  .card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+  .card:active { transform: scale(.985); }
+  .card.picked { border-color: #f97316; box-shadow: 0 6px 24px rgba(249,115,22,.18); }
+  .fadeIn { animation: fadeIn .25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body class="bg-neutral-50 text-neutral-900">
+<div id="app" class="pb-40">
+  <header class="max-w-5xl mx-auto px-4 pt-8 pb-4">
+    <h1 class="text-2xl font-bold tracking-tight">🍳 今日想吃点什么</h1>
+    <p class="text-sm text-neutral-500 mt-1">点好菜，我这边微信会立刻收到食材和做法</p>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4">
+    <div v-if="loading" class="py-16 text-center text-neutral-400 text-sm">正在加载菜谱…</div>
+    <div v-else-if="error" class="py-16 text-center text-red-500 text-sm">{{ error }}</div>
+    <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <article
+        v-for="r in recipes"
+        :key="r.id"
+        class="card bg-white rounded-2xl overflow-hidden border-2 border-transparent shadow-sm cursor-pointer"
+        :class="{ picked: picked.includes(r.id) }"
+        @click="toggle(r.id)"
+      >
+        <div class="relative">
+          <img :src="r.image" :alt="r.name" class="w-full h-40 object-cover" loading="lazy" />
+          <span v-if="picked.includes(r.id)"
+                class="absolute top-2 right-2 w-7 h-7 rounded-full bg-orange-500 text-white text-sm flex items-center justify-center font-bold">✓</span>
+        </div>
+        <div class="p-4">
+          <div class="flex items-baseline justify-between">
+            <h2 class="font-semibold text-base">{{ r.name }}</h2>
+            <span class="text-xs text-neutral-400">{{ r.time }}</span>
+          </div>
+          <p class="text-xs text-neutral-500 mt-2 line-clamp-2">{{ r.ingredients.join('、') }}</p>
+          <p class="text-xs text-orange-500 mt-2">难度 {{ r.difficulty }}</p>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <footer class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-neutral-200">
+    <div class="max-w-5xl mx-auto px-4 py-3">
+      <div v-if="picked.length" class="fadeIn mb-2 flex flex-wrap gap-1.5">
+        <span v-for="id in picked" :key="id"
+              class="inline-flex items-center gap-1 bg-orange-50 text-orange-700 text-xs px-2 py-1 rounded-full">
+          {{ nameOf(id) }}
+          <button @click.stop="toggle(id)" class="text-orange-400 hover:text-orange-700">✕</button>
+        </span>
+      </div>
+      <input
+        v-model="note"
+        maxlength="60"
+        placeholder="想说的话（可选，一起发过去）"
+        class="w-full mb-2 text-sm px-3 py-2 rounded-lg border border-neutral-200 focus:outline-none focus:border-orange-400"
+      />
+      <button
+        @click="submit"
+        :disabled="!picked.length || sending"
+        class="w-full py-3 rounded-xl font-semibold text-white transition
+               disabled:bg-neutral-300 disabled:cursor-not-allowed bg-orange-500 hover:bg-orange-600">
+        <span v-if="sending">发送中…</span>
+        <span v-else-if="sent">已发送 ✅</span>
+        <span v-else>发送（{{ picked.length }} 道）</span>
+      </button>
+      <p v-if="fail" class="text-xs text-red-500 mt-2 text-center">{{ fail }}</p>
+    </div>
+  </footer>
+</div>
+
+<script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+<script>
+Vue.createApp({
+  data() {
+    return { recipes: [], picked: [], note: '', loading: true, sending: false, sent: false, error: '', fail: '' };
+  },
+  mounted() {
+    fetch('/api/recipes')
+      .then(function (r) { return r.json(); })
+      .then((payload) => {
+        this.recipes = payload.data || [];
+        if (!this.recipes.length) this.error = '暂时没有菜谱数据';
+      })
+      .catch(() => { this.error = '加载失败，请刷新重试'; })
+      .finally(() => { this.loading = false; });
+  },
+  methods: {
+    nameOf(id) {
+      const hit = this.recipes.find(function (r) { return r.id === id; });
+      return hit ? hit.name : '';
+    },
+    toggle(id) {
+      const i = this.picked.indexOf(id);
+      if (i >= 0) this.picked.splice(i, 1); else this.picked.push(id);
+      this.sent = false;
+      this.fail = '';
+    },
+    submit() {
+      if (!this.picked.length || this.sending) return;
+      this.sending = true;
+      this.sent = false;
+      this.fail = '';
+      fetch('/api/send-wechat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: this.picked, note: this.note.trim() })
+      })
+        .then(function (r) { return r.json(); })
+        .then((payload) => {
+          if (payload.success) {
+            this.sent = true;
+            this.picked = [];
+            this.note = '';
+          } else {
+            this.fail = payload.message || '发送失败';
+          }
+        })
+        .catch(() => { this.fail = '网络异常，请重试'; })
+        .finally(() => { this.sending = false; });
+    }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
