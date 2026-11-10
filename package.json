@@ -1,0 +1,19 @@
+{
+  "name": "recipe-app-v2",
+  "version": "2.0.0",
+  "private": true,
+  "description": "夫妻菜谱协作：对象点菜，ServerChan 推到我的微信",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}
