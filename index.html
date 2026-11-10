@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今日点菜</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { -webkit-tap-highlight-color: transparent; }
+  .card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+  .card:active { transform: scale(.985); }
+  .picked { border-color: #f97316 !important; box-shadow: 0 6px 24px rgba(249,115,22,.18); }
+</style>
+</head>
+<body class="bg-neutral-50 text-neutral-900">
+<div id="app" class="pb-40">
+
+  <header class="max-w-5xl mx-auto px-4 pt-8 pb-4">
+    <h1 class="text-2xl font-bold tracking-tight">🍳 今日想吃点什么</h1>
+    <p class="text-sm text-neutral-500 mt-1">点好菜，我这边微信会立刻收到食材和做法</p>
+  </header>
+
+  <section v-if="!sckey" class="max-w-md mx-auto px-4 py-12">
+    <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+      <h2 class="font-semibold mb-2">还差一步：绑定推送链接</h2>
+      <p class="text-sm text-neutral-600 leading-relaxed">
+        把带密钥的完整链接（末尾带 <code class="bg-neutral-100 px-1 rounded">#SCT...</code>）
+        在这台手机上打开一次，页面会自动记住，以后就不用再带密钥了。
+      </p>
+    </div>
+  </section>
+
+  <main v-else class="max-w-5xl mx-auto px-4">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <article
+        v-for="r in recipes"
+        :key="r.id"
+        class="card bg-white rounded-2xl overflow-hidden border-2 border-transparent shadow-sm cursor-pointer"
+        :class="{ picked: picked.includes(r.id) }"
+        @click="toggle(r.id)"
+      >
+        <div class="relative">
+          <img :src="r.image" :alt="r.name" class="w-full h-40 object-cover" loading="lazy" />
+          <span v-if="picked.includes(r.id)"
+                class="absolute top-2 right-2 w-7 h-7 rounded-full bg-orange-500 text-white text-sm flex items-center justify-center font-bold">✓</span>
+        </div>
+        <div class="p-4">
+          <div class="flex items-baseline justify-between">
+            <h2 class="font-semibold text-base">{{ r.name }}</h2>
+            <span class="text-xs text-neutral-400">{{ r.time }}</span>
+          </div>
+          <p class="text-xs text-neutral-500 mt-2">{{ r.ingredients.join('、') }}</p>
+          <p class="text-xs text-orange-500 mt-2">难度 {{ r.difficulty }}</p>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <footer v-if="sckey" class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-neutral-200">
+    <div class="max-w-5xl mx-auto px-4 py-3">
+      <div v-if="picked.length" class="mb-2 flex flex-wrap gap-1.5">
+        <span v-for="id in picked" :key="id"
+              class="inline-flex items-center gap-1 bg-orange-50 text-orange-700 text-xs px-2 py-1 rounded-full">
+          {{ nameOf(id) }}
+          <button @click.stop="toggle(id)" class="text-orange-400">✕</button>
+        </span>
+      </div>
+      <input v-model="note" maxlength="60" placeholder="想说的话（可选，一起发过去）"
+             class="w-full mb-2 text-sm px-3 py-2 rounded-lg border border-neutral-200 focus:outline-none focus:border-orange-400" />
+      <button @click="submit" :disabled="!picked.length || sending"
+              class="w-full py-3 rounded-xl font-semibold text-white transition disabled:bg-neutral-300 bg-orange-500 active:bg-orange-600">
+        <span v-if="sending">发送中…</span>
+        <span v-else-if="sent">已发送 ✅ 看微信</span>
+        <span v-else>发送（{{ picked.length }} 道）</span>
+      </button>
+    </div>
+  </footer>
+</div>
+
+<script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+<script>
+const RECIPES = [
+  { id:1, name:'红烧肉', image:'https://images.unsplash.com/photo-1544025162-d76694255947?w=400&h=300&fit=crop',
+    ingredients:['五花肉 500g','生抽 2 勺','老抽 1 勺','冰糖 适量','姜片 3 片','料酒 2 勺'],
+    steps:['五花肉切块焯水','锅中放油炒糖色','放入肉块翻炒上色','加入调料炖煮 60 分钟'], difficulty:'中等', time:'60 分钟' },
+  { id:2, name:'宫保鸡丁', image:'https://images.unsplash.com/photo-1512058564366-18b5b5d279dc?w=400&h=300&fit=crop',
+    ingredients:['鸡胸肉 300g','花生米 50g','干辣椒 5 个','酱油 2 勺','醋 1 勺','糖 1 勺','葱姜蒜 适量'],
+    steps:['鸡肉切丁腌制','热油炒鸡丁','加入调料翻炒','放入花生米出锅'], difficulty:'简单', time:'25 分钟' },
+  { id:3, name:'西红柿炒鸡蛋', image:'https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&h=300&fit=crop',
+    ingredients:['西红柿 3 个','鸡蛋 3 个','葱花 适量','盐 1 勺','糖 0.5 勺','油 2 勺'],
+    steps:['鸡蛋炒散盛出','炒西红柿出汁','混合翻炒','调味装盘'], difficulty:'简单', time:'15 分钟' },
+  { id:4, name:'麻婆豆腐', image:'https://images.unsplash.com/photo-1599305090598-352551758723?w=400&h=300&fit=crop',
+    ingredients:['豆腐 400g','肉末 100g','豆瓣酱 2 勺','花椒 适量','蒜苗 1 根','葱姜蒜 适量'],
+    steps:['豆腐切块焯水','炒肉末和豆瓣酱','加入豆腐炖煮','撒花椒粉和蒜苗'], difficulty:'中等', time:'30 分钟' },
+  { id:5, name:'清蒸鲈鱼', image:'https://images.unsplash.com/photo-1519708277372-4378ab417234?w=400&h=300&fit=crop',
+    ingredients:['鲈鱼 1 条','姜片 5 片','葱段 2 根','蒸鱼豉油 3 勺','油 2 勺','盐 1 勺'],
+    steps:['鱼处理干净','放葱姜腌制 10 分钟','蒸 8-10 分钟','淋热油和豉油'], difficulty:'容易', time:'20 分钟' },
+  { id:6, name:'回锅肉', image:'https://images.unsplash.com/photo-1539422539213-6a2b92a6a8c5?w=400&h=300&fit=crop',
+    ingredients:['五花肉 400g','青蒜 2 根','豆瓣酱 2 勺','豆豉 1 勺','甜面酱 1 勺','糖 0.5 勺'],
+    steps:['肉煮熟切片','煸炒出油','加入酱料','放入青蒜翻炒'], difficulty:'中等', time:'35 分钟' }
+];
+
+const STORE_KEY = 'recipe_sckey';
+
+function readKeyFromHash() {
+  const raw = location.hash.replace(/^#/, '');
+  if (!/^SCT[A-Za-z0-9]+$/.test(raw)) return '';
+  try { localStorage.setItem(STORE_KEY, raw); } catch (e) {}
+  history.replaceState(null, '', location.pathname + location.search);
+  return raw;
+}
+
+Vue.createApp({
+  data() {
+    return {
+      sckey: readKeyFromHash() || (function () { try { return localStorage.getItem(STORE_KEY) || ''; } catch (e) { return ''; } })(),
+      recipes: RECIPES,
+      picked: [],
+      note: '',
+      sending: false,
+      sent: false,
+      fail: ''
+    };
+  },
+  methods: {
+    nameOf(id) {
+      const hit = this.recipes.find(function (r) { return r.id === id; });
+      return hit ? hit.name : '';
+    },
+    toggle(id) {
+      const i = this.picked.indexOf(id);
+      if (i >= 0) this.picked.splice(i, 1); else this.picked.push(id);
+      this.sent = false;
+      this.fail = '';
+    },
+    buildDesp() {
+      const lines = ['有人点菜啦 🥢', ''];
+      this.picked.forEach(function (id, i) {
+        const r = RECIPES.find(function (x) { return x.id === id; });
+        if (!r) return;
+        lines.push((i + 1) + '. ' + r.name + '（' + r.time + '）');
+        lines.push('   食材：' + r.ingredients.join('、'));
+        lines.push('   做法：' + r.steps.join(' → '));
+        lines.push('');
+      });
+      const note = this.note.trim();
+      if (note) lines.push('留言：' + note);
+      return lines.join('\n');
+    },
+    submit() {
+      if (!this.picked.length || this.sending) return;
+      this.sending = true;
+      this.sent = false;
+      this.fail = '';
+
+      const body = new URLSearchParams();
+      body.set('title', '今日点菜');
+      body.set('desp', this.buildDesp());
+
+      fetch('https://sctapi.ftqq.com/' + this.sckey + '.send', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: body
+      })
+        .then(() => {
+          this.sent = true;
+          this.picked = [];
+          this.note = '';
+        })
+        .catch(() => {
+          this.fail = '发送失败，检查网络后重试';
+        })
+        .finally(() => { this.sending = false; });
+    }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
