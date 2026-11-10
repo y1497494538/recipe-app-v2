@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang='zh-CN'>
+<html lang="zh-CN">
 <head>
-<meta charset='utf-8'>
-<meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'>
-<meta name='theme-color' content='#f7f5f2'>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f5f2">
 <title>今天想吃什么</title>
 <style>
 :root{--bg:#f7f5f2;--card:#fff;--ink:#1f1d1a;--sub:#8a827a;--line:#e8e3dc;--acc:#e0603a;--acc2:#f3d9cf}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;padding-bottom:130px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding-bottom:130px}
 header{position:sticky;top:0;z-index:20;background:rgba(247,245,242,.95);backdrop-filter:blur(10px);padding:12px 14px 6px;border-bottom:1px solid var(--line)}
 h1{margin:0 0 9px;font-size:19px;letter-spacing:.5px;display:flex;align-items:baseline;gap:8px}
 h1 small{font-weight:400;font-size:12px;color:var(--sub)}
@@ -68,62 +68,62 @@ h1 small{font-weight:400;font-size:12px;color:var(--sub)}
 </head>
 <body>
 <header>
-  <h1>今天想吃什么 <small id='hint'>点菜 → 推送</small></h1>
-  <div class='search'>
-    <input id='q' type='search' placeholder='搜菜名或食材，如「土豆」「牛肉」' autocomplete='off'>
-    <button class='clr' id='clr' type='button'>&times;</button>
+  <h1>今天想吃什么 <small id="hint"></small></h1>
+  <div class="search">
+    <input id="q" type="search" placeholder="搜菜名或食材，如「土豆」「牛肉」" autocomplete="off">
+    <button class="clr" id="clr" type="button">&times;</button>
   </div>
-  <div class='cats' id='cats'></div>
+  <div class="cats" id="cats"></div>
 </header>
-<div class='count' id='count'></div>
-<div class='grid' id='grid'></div>
-<div class='empty' id='empty' style='display:none'></div>
-<div id='more'></div>
-<div class='bar' id='bar'>
-  <div class='chips' id='chips'></div>
-  <div class='row'>
-    <input id='note' placeholder='想说的话（可选）' maxlength='60'>
-    <button class='btn s' id='copy' type='button'>复制</button>
-    <button class='btn p' id='send' type='button'>发送</button>
+<div class="count" id="count"></div>
+<div class="grid" id="grid"></div>
+<div class="empty" id="empty" style="display:none"></div>
+<div id="more"></div>
+<div class="bar" id="bar">
+  <div class="chips" id="chips"></div>
+  <div class="row">
+    <input id="note" placeholder="想说的话（可选）" maxlength="60">
+    <button class="btn s" id="copy" type="button">复制</button>
+    <button class="btn p" id="send" type="button">发送</button>
   </div>
 </div>
-<div class='sheet' id='sheet'><div class='panel' id='panel'></div></div>
-<div class='toast' id='toast'></div>
-<script src='data/d01.js'></script>
+<div class="sheet" id="sheet"><div class="panel" id="panel"></div></div>
+<div class="toast" id="toast"></div>
+<script src="data/manifest.js"></script>
 <script>
-var ALL = window.RECIPES || [];
+var ALL = [];
 var sel = {};
 var ST = { q: '', cat: '全部', limit: 36 };
 var KS = 'recipe_sckey';
 
 function $(i){ return document.getElementById(i); }
 function baseName(s){ return String(s||'').split(/[\s0-9（(、·]/)[0]; }
-function getKey(){ try{ return localStorage.getItem(KS)||''; }catch(e){ return ''; } }
+function shopName(s){
+  var n = baseName(s);
+  var i = n.indexOf('\uFF1A');
+  if(i > 0) n = n.slice(i + 1);
+  return n;
+}
+function getKey(){ try{ return localStorage.getItem(KS) || ''; }catch(e){ return ''; } }
 
 (function bindKey(){
   var h = location.hash || '';
   if(h.indexOf('#SCT') === 0){
-    var k = h.slice(1);
-    try{ localStorage.setItem(KS, k); }catch(e){}
+    try{ localStorage.setItem(KS, h.slice(1)); }catch(e){}
     try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
   }
 })();
 
 var CATS = ['全部'];
-ALL.forEach(function(r){ if(r.cat && CATS.indexOf(r.cat) < 0) CATS.push(r.cat); });
 
-function kws(){
-  return ST.q.trim().toLowerCase().split(/\s+/).filter(function(w){ return w; });
-}
+function kws(){ return ST.q.trim().toLowerCase().split(/\s+/).filter(function(w){ return w; }); }
 function hit(r){
   var k = kws();
   if(!k.length) return true;
   var hay = ((r.name||'') + ' ' + (r.cat||'') + ' ' + (r.ing||[]).join(' ')).toLowerCase();
   return k.every(function(w){ return hay.indexOf(w) >= 0; });
 }
-function list(){
-  return ALL.filter(hit).filter(function(r){ return ST.cat === '全部' || r.cat === ST.cat; });
-}
+function list(){ return ALL.filter(hit).filter(function(r){ return ST.cat === '全部' || r.cat === ST.cat; }); }
 function selCount(){ return Object.keys(sel).length; }
 function selList(){ return ALL.filter(function(r){ return sel[r.id]; }); }
 function selNames(){ return selList().map(function(r){ return r.name; }); }
@@ -138,22 +138,23 @@ function toast(m){
 
 function renderCats(){
   $('cats').innerHTML = CATS.map(function(c){
-    return '<button type=\'button\' data-cat=\'' + c + '\'' + (c === ST.cat ? ' class=\'on\'' : '') + '>' + c + '</button>';
+    var on = c === ST.cat ? ' on' : '';
+    return '<button type="button" class="cat-btn' + on + '" data-cat="' + c + '">' + c + '</button>';
   }).join('');
 }
 
 function cardHTML(r){
   var c = sel[r.id] ? ' sel' : '';
-  var img = r.img ? '<img src=\'' + r.img + '\' alt=\'\' loading=\'lazy\'>' : '';
-  var ings = (r.ing||[]).map(baseName).filter(function(x){ return x; }).slice(0, 6).join(' · ');
-  return '<div class=\'card' + c + '\' data-id=\'' + r.id + '\'>'
-    + '<div class=\'bn' + (r.img ? ' hasimg' : '') + '\'>' + img + '<span class=\'emo\'>' + (r.emoji||'🍽') + '</span></div>'
-    + '<button class=\'info\' type=\'button\' data-info=\'' + r.id + '\'>i</button>'
-    + '<div class=\'ck\'>&#10003;</div>'
-    + '<div class=\'bd\'>'
-    +   '<div class=\'nm\'>' + r.name + '</div>'
-    +   '<div class=\'meta\'><span>⏱ ' + (r.time||'-') + ' 分钟</span><span>' + (r.diff||'') + '</span><span>' + (r.cat||'') + '</span></div>'
-    +   '<div class=\'igs\'>' + ings + '</div>'
+  var img = r.img ? '<img src="' + r.img + '" alt="" loading="lazy">' : '';
+  var ings = (r.ing||[]).map(shopName).filter(function(x){ return x; }).slice(0, 6).join(' · ');
+  return '<div class="card' + c + '" data-id="' + r.id + '">'
+    + '<div class="bn' + (r.img ? ' hasimg' : '') + '">' + img + '<span class="emo">' + (r.emoji||'🍽') + '</span></div>'
+    + '<button class="info" type="button" data-info="' + r.id + '">i</button>'
+    + '<div class="ck">&#10003;</div>'
+    + '<div class="bd">'
+    +   '<div class="nm">' + r.name + '</div>'
+    +   '<div class="meta"><span>⏱ ' + (r.time||'-') + ' 分钟</span><span>' + (r.diff||'') + '</span><span>' + (r.cat||'') + '</span></div>'
+    +   '<div class="igs">' + ings + '</div>'
     + '</div></div>';
 }
 
@@ -168,12 +169,12 @@ function render(){
   if(!L.length){
     em.style.display = 'block';
     em.innerHTML = ALL.length
-      ? '没找到这道菜<br><span style=\'font-size:13px\'>换个食材试试：鸡蛋、土豆、豆腐、牛肉、白菜</span>'
+      ? '没找到这道菜<br><span style="font-size:13px">换个食材试试：鸡蛋、土豆、豆腐、牛肉、白菜</span>'
       : '菜单正在加载…';
   } else { em.style.display = 'none'; }
   var rest = L.length - shown.length;
   $('more').innerHTML = rest > 0
-    ? '<button class=\'more\' type=\'button\' id=\'moreBtn\'>还有 ' + rest + ' 道，继续加载</button>'
+    ? '<button class="more" type="button" id="moreBtn">还有 ' + rest + ' 道，继续加载</button>'
     : '';
   if(rest > 0){ $('moreBtn').onclick = function(){ ST.limit += 36; render(); }; }
   var imgs = $('grid').querySelectorAll('.bn img');
@@ -186,15 +187,15 @@ function renderBar(){
   var n = selCount();
   $('bar').classList.toggle('up', n > 0);
   $('chips').innerHTML = selList().map(function(r){
-    return '<button class=\'chip\' type=\'button\' data-rm=\'' + r.id + '\'><b>' + (r.emoji||'') + '</b>' + r.name + ' ×</button>';
-  }).join('') + (n > 1 ? '<button class=\'chip\' type=\'button\' id=\'clrSel\'>清空</button>' : '');
+    return '<button class="chip" type="button" data-rm="' + r.id + '"><b>' + (r.emoji||'') + '</b>' + r.name + ' ×</button>';
+  }).join('') + (n > 1 ? '<button class="chip" type="button" id="clrSel">清空</button>' : '');
   if(n > 1){ $('clrSel').onclick = function(){ sel = {}; renderBar(); render(); }; }
 }
 
 function toggle(id){
   if(sel[id]) delete sel[id]; else sel[id] = 1;
   renderBar();
-  var card = document.querySelector('.card[data-id=\'' + id + '\']');
+  var card = document.querySelector('.card[data-id="' + id + '"]');
   if(card) card.classList.toggle('sel', !!sel[id]);
 }
 
@@ -204,15 +205,15 @@ function openDish(id){
   var inSel = !!sel[id];
   $('panel').innerHTML =
       '<h2>' + (r.emoji||'🍽') + ' ' + r.name + '</h2>'
-    + '<div class=\'meta\'><span>⏱ ' + (r.time||'-') + ' 分钟</span><span>' + (r.diff||'') + '</span><span>' + (r.cat||'') + '</span></div>'
+    + '<div class="meta"><span>⏱ ' + (r.time||'-') + ' 分钟</span><span>' + (r.diff||'') + '</span><span>' + (r.cat||'') + '</span></div>'
     + '<h3>用料 · ' + (r.ing||[]).length + ' 样</h3>'
     + '<ul>' + (r.ing||[]).map(function(s){ return '<li>' + s + '</li>'; }).join('') + '</ul>'
     + '<h3>做法</h3>'
     + '<ol>' + (r.steps||[]).map(function(s){ return '<li>' + s + '</li>'; }).join('') + '</ol>'
-    + (r.tip ? '<div class=\'tip\'>💡 ' + r.tip + '</div>' : '')
-    + '<div style=\'display:flex;gap:8px;margin-top:18px\'>'
-    +   '<button class=\'btn ' + (inSel ? 's' : 'p') + '\' type=\'button\' id=\'tog\' style=\'flex:1\'>' + (inSel ? '移出这一顿' : '加入这一顿') + '</button>'
-    +   '<button class=\'btn s\' type=\'button\' id=\'cls\'>关闭</button>'
+    + (r.tip ? '<div class="tip">💡 ' + r.tip + '</div>' : '')
+    + '<div style="display:flex;gap:8px;margin-top:18px">'
+    +   '<button class="btn ' + (inSel ? 's' : 'p') + '" type="button" id="tog" style="flex:1">' + (inSel ? '移出这一顿' : '加入这一顿') + '</button>'
+    +   '<button class="btn s" type="button" id="cls">关闭</button>'
     + '</div>';
   $('sheet').classList.add('on');
   $('tog').onclick = function(){ toggle(id); $('sheet').classList.remove('on'); };
@@ -224,7 +225,7 @@ function buildText(){
   var shop = {};
   L.forEach(function(r){
     (r.ing||[]).forEach(function(s){
-      var n = baseName(s);
+      var n = shopName(s);
       if(!n) return;
       if(!shop[n]) shop[n] = [];
       if(shop[n].indexOf(r.name) < 0) shop[n].push(r.name);
@@ -264,15 +265,10 @@ function copyText(t){
 }
 
 function sendNow(){
-  var n = selCount();
-  if(!n){ toast('还没选菜呢'); return; }
+  if(!selCount()){ toast('还没选菜呢'); return; }
   var txt = buildText();
   var k = getKey();
-  if(!k){
-    copyText(txt);
-    toast('还没绑定推送，已复制文字，粘给 TA 就行');
-    return;
-  }
+  if(!k){ copyText(txt); toast('还没绑定推送，已复制文字'); return; }
   var body = new URLSearchParams();
   body.append('title', '🍳 点菜：' + selNames().join('、'));
   body.append('desp', txt);
@@ -285,48 +281,69 @@ function sendNow(){
     .then(function(){ btn.disabled = false; btn.textContent = '发送'; });
 }
 
-$('q').addEventListener('input', function(){
-  ST.q = this.value;
-  ST.limit = 36;
-  $('clr').style.display = this.value ? 'block' : 'none';
-  render();
-});
-$('clr').addEventListener('click', function(){
-  $('q').value = '';
-  ST.q = '';
-  ST.limit = 36;
-  this.style.display = 'none';
-  render();
-});
-$('cats').addEventListener('click', function(e){
-  var b = e.target.closest('[data-cat]');
-  if(!b) return;
-  ST.cat = b.getAttribute('data-cat');
-  ST.limit = 36;
+function bindEvents(){
+  $('q').addEventListener('input', function(){
+    ST.q = this.value;
+    ST.limit = 36;
+    $('clr').style.display = this.value ? 'block' : 'none';
+    render();
+  });
+  $('clr').addEventListener('click', function(){
+    $('q').value = '';
+    ST.q = '';
+    ST.limit = 36;
+    this.style.display = 'none';
+    render();
+  });
+  $('cats').addEventListener('click', function(e){
+    var b = e.target.closest('[data-cat]');
+    if(!b) return;
+    ST.cat = b.getAttribute('data-cat');
+    ST.limit = 36;
+    renderCats();
+    render();
+  });
+  $('grid').addEventListener('click', function(e){
+    var info = e.target.closest('[data-info]');
+    if(info){ openDish(info.getAttribute('data-info')); return; }
+    var card = e.target.closest('.card');
+    if(card){ toggle(card.getAttribute('data-id')); }
+  });
+  $('chips').addEventListener('click', function(e){
+    var b = e.target.closest('[data-rm]');
+    if(b){ toggle(b.getAttribute('data-rm')); if(selCount() === 0) renderBar(); }
+  });
+  $('sheet').addEventListener('click', function(e){ if(e.target === $('sheet')) $('sheet').classList.remove('on'); });
+  $('send').addEventListener('click', sendNow);
+  $('copy').addEventListener('click', function(){
+    if(!selCount()){ toast('还没选菜呢'); return; }
+    copyText(buildText());
+  });
+}
+
+function boot(){
+  ALL = window.RECIPES || [];
+  ALL.forEach(function(r){ if(r.cat && CATS.indexOf(r.cat) < 0) CATS.push(r.cat); });
+  $('hint').textContent = (getKey() ? '已绑定推送' : '未绑定推送') + ' · ' + ALL.length + ' 道';
   renderCats();
   render();
-});
-$('grid').addEventListener('click', function(e){
-  var info = e.target.closest('[data-info]');
-  if(info){ openDish(info.getAttribute('data-info')); return; }
-  var card = e.target.closest('.card');
-  if(card){ toggle(card.getAttribute('data-id')); }
-});
-$('chips').addEventListener('click', function(e){
-  var b = e.target.closest('[data-rm]');
-  if(b){ toggle(b.getAttribute('data-rm')); if(selCount() === 0) renderBar(); }
-});
-$('sheet').addEventListener('click', function(e){ if(e.target === $('sheet')) $('sheet').classList.remove('on'); });
-$('send').addEventListener('click', sendNow);
-$('copy').addEventListener('click', function(){
-  if(!selCount()){ toast('还没选菜呢'); return; }
-  copyText(buildText());
-});
+  renderBar();
+  bindEvents();
+}
 
-if(getKey()) $('hint').textContent = '已绑定推送';
-renderCats();
-render();
-renderBar();
+(function loadFiles(){
+  var files = window.RECIPE_FILES || ['d01'];
+  function next(){
+    if(!files.length){ boot(); return; }
+    var name = files.shift();
+    var s = document.createElement('script');
+    s.src = 'data/' + name + '.js';
+    s.onload = next;
+    s.onerror = function(){ next(); };
+    document.head.appendChild(s);
+  }
+  next();
+})();
 </script>
 </body>
 </html>
