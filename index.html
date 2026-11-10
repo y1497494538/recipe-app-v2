@@ -4,43 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#fafaf9">
 <title>今日点菜</title>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-       background:#fafaf9;color:#1c1917;line-height:1.5}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#fafaf9;color:#1c1917;line-height:1.5}
   .wrap{max-width:760px;margin:0 auto;padding:0 16px}
   header{padding:26px 0 14px}
   h1{margin:0;font-size:22px;letter-spacing:-.3px}
   .sub{margin:6px 0 0;font-size:13px;color:#78716c}
   .grid{display:grid;gap:12px;grid-template-columns:1fr}
   @media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
-  .card{background:#fff;border:2px solid transparent;border-radius:16px;overflow:hidden;
-        box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:.18s;position:relative}
+  .card{background:#fff;border:2px solid transparent;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:.18s;position:relative}
   .card:active{transform:scale(.985)}
   .card.on{border-color:#f97316;box-shadow:0 8px 24px rgba(249,115,22,.16)}
-  .banner{height:88px;display:flex;align-items:center;justify-content:center;font-size:40px;
-          background:linear-gradient(135deg,#fef3c7,#fed7aa)}
+  .banner{height:84px;display:flex;align-items:center;justify-content:center;font-size:38px;background:linear-gradient(135deg,#fef3c7,#fed7aa)}
   .card:nth-child(2n) .banner{background:linear-gradient(135deg,#dbeafe,#bfdbfe)}
   .card:nth-child(3n) .banner{background:linear-gradient(135deg,#dcfce7,#bbf7d0)}
   .card:nth-child(4n) .banner{background:linear-gradient(135deg,#fee2e2,#fecaca)}
-  .tick{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;
-        background:#f97316;color:#fff;font-size:14px;font-weight:700;
-        display:flex;align-items:center;justify-content:center}
+  .tick{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;background:#f97316;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
   .body{padding:12px 14px 14px}
   .row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
   .name{font-size:15px;font-weight:600}
   .time{font-size:11px;color:#a8a29e;white-space:nowrap}
   .ings{margin:6px 0 0;font-size:11.5px;color:#78716c;line-height:1.6}
   .diff{margin:8px 0 0;font-size:11px;color:#f97316}
-  footer{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);
-         border-top:1px solid #e7e5e4;backdrop-filter:blur(8px);padding:10px 0 calc(10px + env(safe-area-inset-bottom))}
+  footer{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid #e7e5e4;backdrop-filter:blur(8px);padding:10px 0 calc(10px + env(safe-area-inset-bottom))}
   .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-  .chip{display:inline-flex;align-items:center;gap:4px;background:#fff7ed;color:#c2410c;
-        font-size:11.5px;padding:4px 8px;border-radius:99px}
-  .chip b{font-weight:400;cursor:pointer;color:#fb923c}
-  input.note{width:100%;font-size:13px;padding:9px 12px;border:1px solid #e7e5e4;border-radius:10px;
-             margin-bottom:8px;outline:none;font-family:inherit;background:#fff}
+  .chip{display:inline-flex;align-items:center;gap:5px;background:#fff7ed;color:#c2410c;font-size:11.5px;padding:4px 8px;border-radius:99px}
+  .chip b{font-weight:400;cursor:pointer;color:#fb923c;font-size:13px;line-height:1}
+  input.note{width:100%;font-size:13px;padding:9px 12px;border:1px solid #e7e5e4;border-radius:10px;margin-bottom:8px;outline:none;font-family:inherit;background:#fff;color:inherit}
   input.note:focus{border-color:#fb923c}
   .btns{display:flex;gap:8px}
   button{font-family:inherit;border:0;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;padding:12px}
@@ -48,229 +41,320 @@
   .go:active{background:#ea580c}
   .go:disabled{background:#d6d3d1;cursor:not-allowed}
   .ghost{background:#f5f5f4;color:#57534e;flex:0 0 auto;padding:12px 14px}
-  .ghost:disabled{color:#a8a29e}
+  .ghost:disabled{color:#a8a29e;cursor:not-allowed}
   .msg{font-size:12px;color:#16a34a;text-align:center;margin:6px 0 0;line-height:1.4}
   .msg.err{color:#dc2626}
   .hint{background:#fff;border:1px solid #e7e5e4;border-radius:16px;padding:20px;margin:36px 0}
-  .hint h2{margin:0 0 8px;font-size:16px}
-  .hint p{margin:0;font-size:13px;color:#57534e;line-height:1.75}
+  .hint h2{margin:0 0 10px;font-size:16px}
+  .hint p{margin:0;font-size:13px;color:#57534e;line-height:1.8}
   code{background:#f5f5f4;padding:1px 5px;border-radius:4px;font-size:12px}
-  .pad{padding-bottom:170px}
+  .pad{padding-bottom:180px}
+  [hidden]{display:none !important}
 </style>
 </head>
 <body>
-<div id="app">
-  <header class="wrap">
-    <h1>🍳 今日想吃点什么</h1>
-    <p class="sub">点好菜，我手机微信会立刻收到「采购清单 + 做法」</p>
-  </header>
+<header class="wrap">
+  <h1>🍳 今日想吃点什么</h1>
+  <p class="sub">点好菜，我手机微信会立刻收到「采购清单 + 做法」</p>
+</header>
 
-  <div v-if="!sckey" class="wrap">
-    <div class="hint">
-      <h2>还差一步：绑定推送链接</h2>
-      <p>
-        把带密钥的完整链接（末尾带 <code>#SCT...</code>）在这台手机上打开一次，
-        页面会自动记住，以后直接访问不用再带密钥。
-      </p>
-    </div>
+<div class="wrap" id="hint" hidden>
+  <div class="hint">
+    <h2>还差一步：绑定推送链接</h2>
+    <p>
+      把带密钥的完整链接（末尾带 <code>#SCT...</code>）在这台设备上打开一次，
+      页面会自动记住，以后直接访问不用再带密钥。
+    </p>
   </div>
-
-  <div v-else class="wrap pad">
-    <div class="grid">
-      <div class="card" v-for="r in recipes" :key="r.id"
-           :class="{ on: picked.indexOf(r.id) >= 0 }" @click="toggle(r.id)">
-        <div class="banner">{{ r.emoji }}</div>
-        <div class="tick" v-if="picked.indexOf(r.id) >= 0">✓</div>
-        <div class="body">
-          <div class="row">
-            <span class="name">{{ r.name }}</span>
-            <span class="time">{{ r.time }}</span>
-          </div>
-          <p class="ings">{{ r.ingredients.join(' · ') }}</p>
-          <p class="diff">难度 {{ r.difficulty }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <footer v-if="sckey">
-    <div class="wrap">
-      <div class="chips" v-if="picked.length">
-        <span class="chip" v-for="id in picked" :key="id">
-          {{ nameOf(id) }}<b @click.stop="toggle(id)">✕</b>
-        </span>
-      </div>
-      <input class="note" v-model="note" maxlength="60" placeholder="想说的话（可选，一起发过去）" />
-      <div class="btns">
-        <button class="go" @click="submit" :disabled="!picked.length || sending">
-          {{ sending ? '发送中…' : (picked.length ? '发送（' + picked.length + ' 道）' : '先选几道菜') }}
-        </button>
-        <button class="ghost" @click="copy" :disabled="!picked.length">复制</button>
-      </div>
-      <p class="msg" :class="{ err: failed }" v-if="status">{{ status }}</p>
-    </div>
-  </footer>
 </div>
 
+<main class="wrap pad" id="main" hidden>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer id="bar" hidden>
+  <div class="wrap">
+    <div class="chips" id="chips" hidden></div>
+    <input class="note" id="note" maxlength="60" placeholder="想说的话（可选，一起发过去）">
+    <div class="btns">
+      <button class="go" id="send" disabled>先选几道菜</button>
+      <button class="ghost" id="copy" disabled>复制</button>
+    </div>
+    <p class="msg" id="msg" hidden></p>
+  </div>
+</footer>
+
+<noscript>
+  <div class="wrap"><div class="hint"><p>这个页面需要启用 JavaScript 才能选菜。</p></div></div>
+</noscript>
+
 <script>
-const RECIPES = [
-  { id:1, name:'红烧肉', emoji:'🥩', time:'60 分钟', difficulty:'中等',
-    ingredients:['五花肉 500g','冰糖 20g','生抽 2 勺','老抽 1 勺','料酒 2 勺','姜 3 片','八角 2 颗'],
-    steps:['五花肉切麻将块，冷水下锅焯 3 分钟捞出','锅里少油放冰糖，小火炒出枣红色','下肉块翻炒裹色，加料酒、生抽、老抽、姜片、八角','倒热水没过肉，小火炖 50 分钟，大火收汁'] },
-  { id:2, name:'宫保鸡丁', emoji:'🍗', time:'25 分钟', difficulty:'简单',
-    ingredients:['鸡胸肉 300g','花生米 50g','干辣椒 5 个','花椒 1 小把','生抽 2 勺','香醋 1 勺','白糖 1 勺','葱姜蒜 适量'],
-    steps:['鸡胸切丁，加生抽和淀粉抓匀腌 10 分钟','调碗汁：生抽、香醋、白糖、水淀粉','热油下干辣椒和花椒小火炒香，再下鸡丁炒散','倒碗汁收稠，最后放花生米和葱段'] },
-  { id:3, name:'西红柿炒鸡蛋', emoji:'🍅', time:'15 分钟', difficulty:'简单',
-    ingredients:['西红柿 3 个','鸡蛋 3 个','葱花 适量','盐 1 小勺','白糖 半勺','食用油 2 勺'],
-    steps:['鸡蛋加少许盐打散，热油下锅炒成块盛出','西红柿去皮切块，下锅炒出汁水','倒回鸡蛋，加盐和糖翻炒匀','撒葱花出锅'] },
-  { id:4, name:'麻婆豆腐', emoji:'🌶️', time:'30 分钟', difficulty:'中等',
-    ingredients:['嫩豆腐 400g','牛肉末 100g','郫县豆瓣酱 2 勺','花椒粉 适量','蒜苗 1 根','葱姜蒜 适量','生抽 1 勺'],
-    steps:['豆腐切块，淡盐水里泡 5 分钟去豆味','炒肉末至酥，下豆瓣酱和葱姜蒜炒出红油','加水烧开，轻轻推入豆腐，小火煮 5 分钟','水淀粉勾两次芡，出锅撒花椒粉和蒜苗'] },
-  { id:5, name:'清蒸鲈鱼', emoji:'🐟', time:'20 分钟', difficulty:'容易',
-    ingredients:['鲈鱼 1 条','姜 5 片','葱 2 根','蒸鱼豉油 3 勺','料酒 1 勺','食用油 2 勺','盐 适量'],
-    steps:['鱼处理干净，两面各划两刀，抹盐和料酒腌 10 分钟','盘底垫葱姜，鱼放上去，身上再铺葱姜','水开后大火蒸 8 分钟，关火焖 2 分钟','倒掉盘中汤水，淋蒸鱼豉油，浇一勺热油'] },
-  { id:6, name:'可乐鸡翅', emoji:'🍖', time:'30 分钟', difficulty:'简单',
-    ingredients:['鸡中翅 500g','可乐 1 罐','生抽 2 勺','老抽 半勺','姜 3 片','料酒 1 勺'],
-    steps:['鸡翅两面划刀，冷水下锅焯水后擦干','少油煎到两面金黄','加料酒、生抽、老抽、姜片，倒可乐没过鸡翅','中火煮 15 分钟，大火收汁到浓稠'] },
-  { id:7, name:'蒜蓉炒时蔬', emoji:'🥬', time:'10 分钟', difficulty:'简单',
-    ingredients:['青菜 400g','大蒜 4 瓣','盐 适量','食用油 1 勺','蚝油 半勺'],
-    steps:['青菜洗净沥干，蒜切末','热锅多点油，下蒜末小火爆香','下青菜大火快炒 1 分钟','加盐和蚝油，翻匀立刻出锅'] },
-  { id:8, name:'紫菜蛋花汤', emoji:'🍲', time:'10 分钟', difficulty:'简单',
-    ingredients:['紫菜 1 小把','鸡蛋 2 个','虾皮 1 小把','香油 几滴','盐 适量','葱花 适量'],
-    steps:['水烧开，下紫菜和虾皮煮 1 分钟','鸡蛋打散，沿锅边缓缓倒入并轻搅','加盐调味，关火淋香油撒葱花'] }
-];
+(function () {
+  'use strict';
 
-const STORE_KEY = 'recipe_sckey';
+  var RECIPES = [
+    { id: 1, name: '红烧肉', emoji: '🥩', time: '60 分钟', difficulty: '中等',
+      ingredients: ['五花肉 500g', '冰糖 20g', '生抽 2 勺', '老抽 1 勺', '料酒 2 勺', '姜 3 片', '八角 2 颗'],
+      steps: ['五花肉切麻将块，冷水下锅焯 3 分钟捞出', '锅里少油放冰糖，小火炒出枣红色', '下肉块翻炒裹色，加料酒、生抽、老抽、姜片、八角', '倒热水没过肉，小火炖 50 分钟，大火收汁'] },
+    { id: 2, name: '宫保鸡丁', emoji: '🍗', time: '25 分钟', difficulty: '简单',
+      ingredients: ['鸡胸肉 300g', '花生米 50g', '干辣椒 5 个', '花椒 1 小把', '生抽 2 勺', '香醋 1 勺', '白糖 1 勺', '葱姜蒜 适量'],
+      steps: ['鸡胸切丁，加生抽和淀粉抓匀腌 10 分钟', '调碗汁：生抽、香醋、白糖、水淀粉', '热油下干辣椒和花椒小火炒香，再下鸡丁炒散', '倒碗汁收稠，最后放花生米和葱段'] },
+    { id: 3, name: '西红柿炒鸡蛋', emoji: '🍅', time: '15 分钟', difficulty: '简单',
+      ingredients: ['西红柿 3 个', '鸡蛋 3 个', '葱花 适量', '盐 1 小勺', '白糖 半勺', '食用油 2 勺'],
+      steps: ['鸡蛋加少许盐打散，热油下锅炒成块盛出', '西红柿去皮切块，下锅炒出汁水', '倒回鸡蛋，加盐和糖翻炒匀', '撒葱花出锅'] },
+    { id: 4, name: '麻婆豆腐', emoji: '🌶️', time: '30 分钟', difficulty: '中等',
+      ingredients: ['嫩豆腐 400g', '牛肉末 100g', '郫县豆瓣酱 2 勺', '花椒粉 适量', '蒜苗 1 根', '葱姜蒜 适量', '生抽 1 勺'],
+      steps: ['豆腐切块，淡盐水里泡 5 分钟去豆味', '炒肉末至酥，下豆瓣酱和葱姜蒜炒出红油', '加水烧开，轻轻推入豆腐，小火煮 5 分钟', '水淀粉勾两次芡，出锅撒花椒粉和蒜苗'] },
+    { id: 5, name: '清蒸鲈鱼', emoji: '🐟', time: '20 分钟', difficulty: '容易',
+      ingredients: ['鲈鱼 1 条', '姜 5 片', '葱 2 根', '蒸鱼豉油 3 勺', '料酒 1 勺', '食用油 2 勺', '盐 适量'],
+      steps: ['鱼处理干净，两面各划两刀，抹盐和料酒腌 10 分钟', '盘底垫葱姜，鱼放上去，身上再铺葱姜', '水开后大火蒸 8 分钟，关火焖 2 分钟', '倒掉盘中汤水，淋蒸鱼豉油，浇一勺热油'] },
+    { id: 6, name: '可乐鸡翅', emoji: '🍖', time: '30 分钟', difficulty: '简单',
+      ingredients: ['鸡中翅 500g', '可乐 1 罐', '生抽 2 勺', '老抽 半勺', '姜 3 片', '料酒 1 勺'],
+      steps: ['鸡翅两面划刀，冷水下锅焯水后擦干', '少油煎到两面金黄', '加料酒、生抽、老抽、姜片，倒可乐没过鸡翅', '中火煮 15 分钟，大火收汁到浓稠'] },
+    { id: 7, name: '蒜蓉炒时蔬', emoji: '🥬', time: '10 分钟', difficulty: '简单',
+      ingredients: ['青菜 400g', '大蒜 4 瓣', '盐 适量', '食用油 1 勺', '蚝油 半勺'],
+      steps: ['青菜洗净沥干，蒜切末', '热锅多点油，下蒜末小火爆香', '下青菜大火快炒 1 分钟', '加盐和蚝油，翻匀立刻出锅'] },
+    { id: 8, name: '紫菜蛋花汤', emoji: '🍲', time: '10 分钟', difficulty: '简单',
+      ingredients: ['紫菜 1 小把', '鸡蛋 2 个', '虾皮 1 小把', '香油 几滴', '盐 适量', '葱花 适量'],
+      steps: ['水烧开，下紫菜和虾皮煮 1 分钟', '鸡蛋打散，沿锅边缓缓倒入并轻搅', '加盐调味，关火淋香油撒葱花'] }
+  ];
 
-function readKeyFromHash() {
-  const raw = location.hash.replace(/^#/, '');
-  if (!/^SCT[A-Za-z0-9]+$/.test(raw)) return '';
-  try { localStorage.setItem(STORE_KEY, raw); } catch (e) {}
-  history.replaceState(null, '', location.pathname + location.search);
-  return raw;
-}
+  var STORE_KEY = 'recipe_sckey';
+  var KEY_RE = /^SCT[A-Za-z0-9]+$/;
 
-function storedKey() {
-  try { return localStorage.getItem(STORE_KEY) || ''; } catch (e) { return ''; }
-}
+  var gridEl = document.getElementById('grid');
+  var mainEl = document.getElementById('main');
+  var hintEl = document.getElementById('hint');
+  var barEl = document.getElementById('bar');
+  var chipsEl = document.getElementById('chips');
+  var noteEl = document.getElementById('note');
+  var sendEl = document.getElementById('send');
+  var copyEl = document.getElementById('copy');
+  var msgEl = document.getElementById('msg');
 
-Vue.createApp({
-  data() {
-    return {
-      sckey: readKeyFromHash() || storedKey(),
-      recipes: RECIPES,
-      picked: [],
-      note: '',
-      sending: false,
-      status: '',
-      failed: false
-    };
-  },
-  methods: {
-    nameOf(id) {
-      const hit = RECIPES.filter(function (r) { return r.id === id; })[0];
-      return hit ? hit.name : '';
-    },
-    clearMsg() {
-      this.status = '';
-      this.failed = false;
-    },
-    toggle(id) {
-      const i = this.picked.indexOf(id);
-      if (i >= 0) this.picked.splice(i, 1); else this.picked.push(id);
-      this.clearMsg();
-    },
-    baseName(s) {
-      const t = String(s).trim();
-      const sp = t.search(/[\s\d]/);
-      return (sp > 0 ? t.slice(0, sp) : t).trim();
-    },
-    shoppingList() {
-      const seen = [];
-      const out = [];
-      const self = this;
-      this.picked.forEach(function (id) {
-        const r = RECIPES.filter(function (x) { return x.id === id; })[0];
-        if (!r) return;
-        r.ingredients.forEach(function (g) {
-          const key = self.baseName(g);
-          if (key && seen.indexOf(key) < 0) { seen.push(key); out.push(key); }
-        });
+  var sckey = '';
+  var picked = [];
+  var sending = false;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function byId(id) {
+    for (var i = 0; i < RECIPES.length; i++) {
+      if (RECIPES[i].id === id) return RECIPES[i];
+    }
+    return null;
+  }
+
+  function readKeyFromHash() {
+    var raw = (location.hash || '').replace(/^#/, '');
+    if (!KEY_RE.test(raw)) return '';
+    try { localStorage.setItem(STORE_KEY, raw); } catch (e) {}
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    return raw;
+  }
+
+  function storedKey() {
+    try { return localStorage.getItem(STORE_KEY) || ''; } catch (e) { return ''; }
+  }
+
+  function setMsg(text, isErr) {
+    if (!text) { msgEl.hidden = true; msgEl.textContent = ''; return; }
+    msgEl.hidden = false;
+    msgEl.textContent = text;
+    msgEl.className = isErr ? 'msg err' : 'msg';
+  }
+
+  function baseName(s) {
+    var t = String(s).trim();
+    var sp = t.search(/[\s\d]/);
+    return (sp > 0 ? t.slice(0, sp) : t).trim();
+  }
+
+  function shoppingList() {
+    var seen = {};
+    var out = [];
+    picked.forEach(function (id) {
+      var r = byId(id);
+      if (!r) return;
+      r.ingredients.forEach(function (g) {
+        var k = baseName(g);
+        if (!k || seen[k]) return;
+        seen[k] = true;
+        out.push(k);
       });
-      return out;
-    },
-    buildText() {
-      const self = this;
-      const lines = [];
-      lines.push('有人点菜啦 🥢');
-      lines.push('');
-      lines.push('已点：' + this.picked.map(function (id) { return self.nameOf(id); }).join('、'));
-      lines.push('');
-      lines.push('=== 采购清单 ===');
-      this.shoppingList().forEach(function (g) { lines.push('· ' + g); });
-      lines.push('');
-      this.picked.forEach(function (id) {
-        const r = RECIPES.filter(function (x) { return x.id === id; })[0];
-        if (!r) return;
-        lines.push('=== ' + r.name + '（' + r.time + '）===');
-        lines.push('食材：' + r.ingredients.join('、'));
-        lines.push('做法：');
-        r.steps.forEach(function (s, i) { lines.push('  ' + (i + 1) + '. ' + s); });
-        lines.push('');
-      });
-      const n = this.note.trim();
-      if (n) lines.push('留言：' + n);
-      return lines.join('\n');
-    },
-    submit() {
-      if (!this.picked.length || this.sending) return;
-      this.sending = true;
-      this.clearMsg();
+    });
+    return out;
+  }
 
-      const body = new URLSearchParams();
-      body.set('title', '今日点菜 · ' + this.picked.length + ' 道');
-      body.set('desp', this.buildText());
+  function buildText() {
+    var lines = [];
+    lines.push('有人点菜啦 🥢');
+    lines.push('');
+    lines.push('已点：' + picked.map(function (id) {
+      var r = byId(id);
+      return r ? r.name : '';
+    }).join('、'));
+    lines.push('');
+    lines.push('=== 采购清单 ===');
+    shoppingList().forEach(function (g) { lines.push('· ' + g); });
+    lines.push('');
+    picked.forEach(function (id) {
+      var r = byId(id);
+      if (!r) return;
+      lines.push('=== ' + r.name + '（' + r.time + '）===');
+      lines.push('食材：' + r.ingredients.join('、'));
+      lines.push('做法：');
+      r.steps.forEach(function (s, i) { lines.push('  ' + (i + 1) + '. ' + s); });
+      lines.push('');
+    });
+    var n = noteEl.value.trim();
+    if (n) lines.push('留言：' + n);
+    return lines.join('\n');
+  }
 
-      const self = this;
-      fetch('https://sctapi.ftqq.com/' + this.sckey + '.send', {
+  function renderGrid() {
+    var html = '';
+    RECIPES.forEach(function (r) {
+      var on = picked.indexOf(r.id) >= 0;
+      html += '<div class="card' + (on ? ' on' : '') + '" data-id="' + r.id + '">' +
+        '<div class="banner">' + r.emoji + '</div>' +
+        (on ? '<div class="tick">✓</div>' : '') +
+        '<div class="body">' +
+          '<div class="row"><span class="name">' + esc(r.name) + '</span>' +
+          '<span class="time">' + esc(r.time) + '</span></div>' +
+          '<p class="ings">' + esc(r.ingredients.join(' · ')) + '</p>' +
+          '<p class="diff">难度 ' + esc(r.difficulty) + '</p>' +
+        '</div>' +
+      '</div>';
+    });
+    gridEl.innerHTML = html;
+  }
+
+  function renderBar() {
+    if (!picked.length) {
+      chipsEl.hidden = true;
+      chipsEl.innerHTML = '';
+      sendEl.disabled = true;
+      copyEl.disabled = true;
+      sendEl.textContent = '先选几道菜';
+      return;
+    }
+    var chips = '';
+    picked.forEach(function (id) {
+      var r = byId(id);
+      if (r) chips += '<span class="chip">' + esc(r.name) + '<b data-drop="' + id + '">✕</b></span>';
+    });
+    chipsEl.innerHTML = chips;
+    chipsEl.hidden = false;
+    sendEl.disabled = sending;
+    copyEl.disabled = false;
+    sendEl.textContent = sending ? '发送中…' : '发送（' + picked.length + ' 道）';
+  }
+
+  function toggle(id) {
+    var i = picked.indexOf(id);
+    if (i >= 0) picked.splice(i, 1); else picked.push(id);
+    setMsg('');
+    renderGrid();
+    renderBar();
+  }
+
+  function submit() {
+    if (!picked.length || sending) return;
+    sending = true;
+    setMsg('');
+    renderBar();
+
+    var title = '今日点菜 · ' + picked.length + ' 道';
+    var body = new URLSearchParams();
+    body.set('title', title);
+    body.set('desp', buildText());
+
+    function done() {
+      setMsg('已发送请求，去微信看一眼～没收到就点旁边「复制」发给我', false);
+      picked = [];
+      noteEl.value = '';
+      sending = false;
+      renderGrid();
+      renderBar();
+    }
+
+    try {
+      fetch('https://sctapi.ftqq.com/' + sckey + '.send', {
         method: 'POST',
         mode: 'no-cors',
         body: body
-      })
-        .then(function () {
-          self.status = '已发送请求，去微信看一眼～没收到就点旁边「复制」发给我';
-          self.picked = [];
-          self.note = '';
-        })
-        .catch(function () {
-          self.failed = true;
-          self.status = '网络不通，点「复制」直接把清单发给我';
-        })
-        .then(function () { self.sending = false; });
-    },
-    copy() {
-      const text = this.buildText();
-      const self = this;
-      function done() { self.failed = false; self.status = '清单已复制，粘到微信发给我就行'; }
-      function fallback() {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); done(); }
-        catch (e) { self.failed = true; self.status = '复制失败，请长按选择文字'; }
-        document.body.removeChild(ta);
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done).catch(fallback);
-      } else {
-        fallback();
-      }
+      }).then(done).catch(function () {
+        sending = false;
+        renderBar();
+        setMsg('网络不通，点「复制」直接把清单发给我', true);
+      });
+    } catch (e) {
+      sending = false;
+      renderBar();
+      setMsg('这个浏览器发不了请求，点「复制」发给我', true);
     }
   }
-}).mount('#app');
+
+  function copy() {
+    if (!picked.length) return;
+    var text = buildText();
+
+    function ok() { setMsg('清单已复制，粘到微信发给我就行', false); }
+    function alt() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      var good = false;
+      try { good = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      if (good) ok(); else setMsg('复制失败，换个浏览器或长按选择文字', true);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok).catch(alt);
+    } else {
+      alt();
+    }
+  }
+
+  gridEl.addEventListener('click', function (e) {
+    var card = e.target.closest ? e.target.closest('.card') : null;
+    if (!card) return;
+    toggle(parseInt(card.getAttribute('data-id'), 10));
+  });
+
+  chipsEl.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-drop]') : null;
+    if (!b) return;
+    e.stopPropagation();
+    toggle(parseInt(b.getAttribute('data-drop'), 10));
+  });
+
+  sendEl.addEventListener('click', submit);
+  copyEl.addEventListener('click', copy);
+  noteEl.addEventListener('input', function () { setMsg(''); });
+
+  sckey = readKeyFromHash() || storedKey();
+
+  if (!sckey) {
+    hintEl.hidden = false;
+  } else {
+    mainEl.hidden = false;
+    barEl.hidden = false;
+    renderGrid();
+    renderBar();
+  }
+})();
 </script>
 </body>
 </html>
