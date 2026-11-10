@@ -48,9 +48,10 @@
   .go:active{background:#ea580c}
   .go:disabled{background:#d6d3d1;cursor:not-allowed}
   .ghost{background:#f5f5f4;color:#57534e;flex:0 0 auto;padding:12px 14px}
-  .msg{font-size:12px;color:#16a34a;text-align:center;margin:6px 0 0}
+  .ghost:disabled{color:#a8a29e}
+  .msg{font-size:12px;color:#16a34a;text-align:center;margin:6px 0 0;line-height:1.4}
   .msg.err{color:#dc2626}
-  .hint{background:#fff;border:1px solid #e7e5e4;border-radius:16px;padding:20px;margin:40px 0}
+  .hint{background:#fff;border:1px solid #e7e5e4;border-radius:16px;padding:20px;margin:36px 0}
   .hint h2{margin:0 0 8px;font-size:16px}
   .hint p{margin:0;font-size:13px;color:#57534e;line-height:1.75}
   code{background:#f5f5f4;padding:1px 5px;border-radius:4px;font-size:12px}
@@ -91,25 +92,25 @@
       </div>
     </div>
   </div>
-</div>
 
-<footer v-if="sckey" id="bar">
-  <div class="wrap">
-    <div class="chips" v-if="picked.length">
-      <span class="chip" v-for="id in picked" :key="id">
-        {{ nameOf(id) }}<b @click.stop="toggle(id)">✕</b>
-      </span>
+  <footer v-if="sckey">
+    <div class="wrap">
+      <div class="chips" v-if="picked.length">
+        <span class="chip" v-for="id in picked" :key="id">
+          {{ nameOf(id) }}<b @click.stop="toggle(id)">✕</b>
+        </span>
+      </div>
+      <input class="note" v-model="note" maxlength="60" placeholder="想说的话（可选，一起发过去）" />
+      <div class="btns">
+        <button class="go" @click="submit" :disabled="!picked.length || sending">
+          {{ sending ? '发送中…' : (picked.length ? '发送（' + picked.length + ' 道）' : '先选几道菜') }}
+        </button>
+        <button class="ghost" @click="copy" :disabled="!picked.length">复制</button>
+      </div>
+      <p class="msg" :class="{ err: failed }" v-if="status">{{ status }}</p>
     </div>
-    <input class="note" v-model="note" maxlength="60" placeholder="想说的话（可选，一起发过去）" />
-    <div class="btns">
-      <button class="go" @click="submit" :disabled="!picked.length || sending">
-        {{ sending ? '发送中…' : (picked.length ? '发送（' + picked.length + ' 道）' : '先选几道菜') }}
-      </button>
-      <button class="ghost" @click="copy" :disabled="!picked.length">复制</button>
-    </div>
-    <p class="msg" :class="{ err: failed }" v-if="status">{{ status }}</p>
-  </div>
-</footer>
+  </footer>
+</div>
 
 <script>
 const RECIPES = [
@@ -165,17 +166,19 @@ Vue.createApp({
       failed: false
     };
   },
-  watch: {
-    picked() { this.status = ''; this.failed = false; }
-  },
   methods: {
     nameOf(id) {
       const hit = RECIPES.filter(function (r) { return r.id === id; })[0];
       return hit ? hit.name : '';
     },
+    clearMsg() {
+      this.status = '';
+      this.failed = false;
+    },
     toggle(id) {
       const i = this.picked.indexOf(id);
       if (i >= 0) this.picked.splice(i, 1); else this.picked.push(id);
+      this.clearMsg();
     },
     baseName(s) {
       const t = String(s).trim();
@@ -222,8 +225,7 @@ Vue.createApp({
     submit() {
       if (!this.picked.length || this.sending) return;
       this.sending = true;
-      this.status = '';
-      this.failed = false;
+      this.clearMsg();
 
       const body = new URLSearchParams();
       body.set('title', '今日点菜 · ' + this.picked.length + ' 道');
