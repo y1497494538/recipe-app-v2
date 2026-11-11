@@ -8,11 +8,17 @@ on:
 permissions:
   contents: write
 
+# 串行化：连续 push 时排队执行，避免多次 force-push 互相覆盖（之前丢过一次部署）
+concurrency:
+  group: sync-gh-pages
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Assemble dist
         run: |
           mkdir -p dist
@@ -20,6 +26,7 @@ jobs:
           touch dist/.nojekyll
           if [ -d data ]; then cp -r data dist/data; fi
           ls -la dist
+
       - name: Push to gh-pages
         run: |
           cd dist
