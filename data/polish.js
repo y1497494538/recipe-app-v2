@@ -1,5 +1,25 @@
-/* 详情页增强：点开某道菜时，如果它有实物图，就在弹层顶部显示照片 + Commons 署名。
-   这里不改 index.html，而是包一层 window.openDish（index.html 里 openDish 是全局函数声明）。 */
+/* 收尾脚本：① 按菜名去重（防止不同批次重复录入）② 详情页显示实物图 + Commons 署名。
+   本文件在 manifest 里排最后，此时所有 data/dNN.js 已执行完毕、boot() 尚未调用。 */
+
+(function () {
+  var pool = window.RECIPES || [];
+  var seenName = {};
+  var seenId = {};
+  var out = [];
+  for (var i = 0; i < pool.length; i++) {
+    var r = pool[i];
+    if (!r || !r.name) continue;
+    var n = String(r.name).trim();
+    if (seenName[n]) continue;
+    var id = String(r.id);
+    if (seenId[id]) continue;
+    seenName[n] = 1;
+    seenId[id] = 1;
+    out.push(r);
+  }
+  window.RECIPES = out;
+})();
+
 (function () {
   if (typeof window.openDish !== 'function') return;
   var orig = window.openDish;
