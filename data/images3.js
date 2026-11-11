@@ -20,8 +20,7 @@ window.DISH_IMG3 = {
 '粉蒸肉': '粉蒸肉.jpg',
 '香辣鸡翅': '香辣鸡翅（2026年7月14日）.jpg',
 '锅包肉': '东北锅包肉.jpg',
-'蚂蚁上树': '蚂蚁上树01.jpg',
-'家常豆腐': 'Jiācháng dòufǔ, marinated cucumbers, miso soup with wakame seaweed and scallions, and rice 家常豆腐、キュウリの即席昆布漬け、ワカメとネギの味噌汁、白米.jpg'
+'蚂蚁上树': '蚂蚁上树01.jpg'
 };
 (function(){
   var m = window.DISH_IMG3 || {};
